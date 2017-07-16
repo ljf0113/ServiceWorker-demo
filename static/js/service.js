@@ -8,19 +8,23 @@ self.addEventListener('install', function(event) {
   function addCache() {
     return caches.open(VERSION)
       .then((cache) => {
+        //预加载资源 本地跑服务器会加载两次 略坑 线上未知 不知道有cahce的情况下会不会读
         return cache.addAll(['/vue.js', '/index.js', '/index.html']);
       })
       .catch(err => console.log(err))
   }
 
+  //直接更新到最新，新的serviceworker接管页面
   function skipWaiting() {
     return self.skipWaiting();
   }
 
+  //waitUntil 即等待promise执行完 不报错之后再触发事件
   event.waitUntil(Promise.all([skipWaiting(), addCache()]).catch(err => console.log(err)))
 });
 
 self.addEventListener('activate', function(event) {
+  //首次加载才用到 目的是不用reload serviceworker接管页面 马上可监听fetch等事件
   function clientClaim() {
     return self.clients.claim();
   }

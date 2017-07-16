@@ -10,7 +10,9 @@
           return response.json();
         }
       }).then((obj) => {
+        //开关 控制是否使用service worker 返回false会卸载全部 之所以卸载是因为原页面有service worker的话 不卸载还是会执行的
         if (obj.flag) {
+          //注册
           navigator.serviceWorker.register('/service.js', { scope: '/' }).then(function(registration) {
             let serviceWorker = null;
             if (registration.installing) {
@@ -29,6 +31,7 @@
           })
           return true;
         } else {
+          //取得所有注册的service worker
           navigator.serviceWorker.getRegistrations().then((workers) => {
             for (let worker of workers) {
               worker.unregister();
