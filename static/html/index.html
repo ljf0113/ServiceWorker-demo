@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>test</title>
+	<script>
+    if ('serviceWorker' in navigator) {
+      fetch('/serviceWorkerFlag.json').then((response) => {
+        if (response.status === 200) {
+          return response.json();
+        }
+      }).then((obj) => {
+        if (obj.flag) {
+          navigator.serviceWorker.register('/service.js', { scope: '/' }).then(function(registration) {
+            let serviceWorker = null;
+            if (registration.installing) {
+              serviceWorker = registration.installing;
+              console.log('installing');
+            } else if (registration.waiting) {
+              serviceWorker = registration.waiting;
+              console.log('waiting');
+            } else if (registration.active) {
+              serviceWorker = registration.active;
+              console.log('active');
+            }
+            serviceWorker && serviceWorker.addEventListener('statechange', function(e) {
+              console.log(e.target.state);
+            })
+          })
+          return true;
+        } else {
+          navigator.serviceWorker.getRegistrations().then((workers) => {
+            for (let worker of workers) {
+              worker.unregister();
+            }
+          })
+        }
+      }).catch((err) => {
+        console.log(err);
+      })
+    }
+	</script>
+	<script src="/vue.js"></script>
+</head>
+<body>
+	<div id="app">
+		<ul>
+			<li v-for="item in items">{{item}}</li>
+		</ul>
+		<img :src="img" v-show="img">
+		<button @click="setImg">click</button>
+	</div>
+	<script src="/index.js"></script>
+</body>
+</html>
