@@ -3,8 +3,34 @@
 <head>
 	<meta charset="UTF-8">
 	<title>test</title>
+	<script src="/vue.js"></script>
+</head>
+<body>
+	<div id="app">
+		<ul>
+			<li v-for="item in items">{{item}}</li>
+		</ul>
+		<img :src="img" v-show="img">
+		<button @click="setImg">click</button>
+	</div>
+	<script src="/index.js"></script>
 	<script>
     if ('serviceWorker' in navigator) {
+      let reloadFlag = false;
+      //接受来自serviceWorker的讯息
+      navigator.serviceWorker.addEventListener('message', e => {
+        if (e.data === 'reload') {
+          reloadFlag = true;
+          location.reload();
+        }
+      })
+			//浏览器只在focus在该页面上才可以重载页面
+      document.addEventListener('visibilityChange', () => {
+        if (reloadFlag) {
+          location.reload();
+        }
+      })
+
       fetch('/serviceWorkerFlag.json').then((response) => {
         if (response.status === 200) {
           return response.json();
@@ -25,7 +51,7 @@
               serviceWorker = registration.active;
               console.log('active');
             }
-            serviceWorker && serviceWorker.addEventListener('statechange', function(e) {
+            serviceWorker.addEventListener('statechange', function(e) {
               console.log(e.target.state);
             })
           })
@@ -43,16 +69,5 @@
       })
     }
 	</script>
-	<script src="/vue.js"></script>
-</head>
-<body>
-	<div id="app">
-		<ul>
-			<li v-for="item in items">{{item}}</li>
-		</ul>
-		<img :src="img" v-show="img">
-		<button @click="setImg">click</button>
-	</div>
-	<script src="/index.js"></script>
 </body>
 </html>

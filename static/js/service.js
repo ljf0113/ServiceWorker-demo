@@ -2,7 +2,7 @@
  * Created by liangjianfeng on 2017/7/15.
  */
 
-const VERSION = '1.17';
+const VERSION = '1.28';
 
 self.addEventListener('install', function(event) {
   function addCache() {
@@ -36,12 +36,22 @@ self.addEventListener('activate', function(event) {
           caches.delete(cahceName);
         }
       })).catch((err) => {
-        console.log(err)
+        console.log(err);
       })
     })
   }
 
-  event.waitUntil(Promise.all([clientClaim(), clearCahce()]).catch(err => console.log(err)))
+  //与控制页面通讯 重载页面
+  function sendMessagerToRload() {
+    //获得所有控制的页面 进行通讯
+    return self.clients.matchAll().then(clients => {
+      clients.forEach(client => {
+        client.postMessage('reload');
+      })
+    })
+  }
+
+  event.waitUntil(Promise.all([clientClaim(), clearCahce(), sendMessagerToRload()]).catch(err => console.log(err)))
 });
 
 self.addEventListener('fetch', function(event) {
